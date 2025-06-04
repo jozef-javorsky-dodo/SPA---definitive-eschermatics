@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="author" content="github.com/jozef-javorsky-dodo" />
+    <meta name="theme-color" content="#7f7f7f" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Definitive Eschermatics, Penrose Tilings, and M.C. Escher style interactive visualizations."
+    />
+    <title>Eschermatics & Tessellations Visualizer Definitive</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌟</text></svg>"
+    />
+    <style>
+      @font-face {
+        font-family: "Inter var";
+        font-weight: 100 900;
+        font-display: swap;
+        font-style: normal;
+        font-named-instance: "Regular";
+        src: url("https://rsms.me/inter/font-files/Inter-roman.var.woff2?v=3.19")
+          format("woff2");
+      }
+
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f9fbfc;
+        --bg-controls: #f0f4f8;
+        --text-primary: #1a202c;
+        --text-secondary: #4a5568;
+        --header-bg: #2d3748;
+        --header-color: #e2e8f0;
+        --accent-primary: #4299e1;
+        --accent-hover: #2b6cb0;
+        --button-text-color: #ffffff;
+        --border-color: #cbd5e0;
+        --shadow-color: rgba(45, 55, 72, 0.08);
+        --focus-ring-color: #63b3ed;
+        --font-main: "Inter var", "Inter", system-ui, -apple-system,
+          BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      html {
+        font-size: 16px;
+        scroll-behavior: smooth;
+      }
+
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: var(--font-main);
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        display: flex;
+        flex-direction: column;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      header {
+        background-color: var(--header-bg);
+        color: var(--header-color);
+        padding: clamp(0.75rem, 2.5vh, 1.1rem) 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 6px var(--shadow-color);
+        z-index: 1000;
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: clamp(1.7rem, 4vw, 2.25rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+      }
+
+      nav ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0.5rem 0 0.1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: clamp(1.75rem, 4.5vw, 2.75rem);
+      }
+
+      nav ul li a {
+        color: var(--accent-primary);
+        text-decoration: none;
+        font-size: clamp(0.9rem, 2.2vw, 1.05rem);
+        font-weight: 500;
+        transition: color 0.2s ease-in-out, opacity 0.2s;
+        padding: 0.25rem 0.1rem;
+      }
+
+      nav ul li a:hover,
+      nav ul li a:focus-visible {
+        color: var(--accent-hover);
+        opacity: 0.85;
+        text-decoration: underline;
+        text-decoration-thickness: 0.125em;
+        text-underline-offset: 0.2em;
+        outline: none;
+      }
+
+      .visually-hidden {
+        border: 0;
+        clip: rect(0 0 0 0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;
+        white-space: nowrap;
+      }
+
+      main {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+      }
+
+      #visualizationCanvas {
+        flex-grow: 1;
+        width: 100%;
+        height: 100%;
+        display: block;
+        background-color: var(--bg-primary);
+        touch-action: manipulation;
+      }
+
+      footer {
+        padding: 0.85rem;
+        text-align: center;
+        font-size: 0.9rem;
+        background-color: var(--header-bg);
+        color: var(--header-color);
+        opacity: 0.98;
+      }
+
+      .controls-panel {
+        padding: 0.8rem 1.2rem;
+        background-color: var(--bg-controls);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.85rem;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 1px 5px var(--shadow-color);
+      }
+
+      .controls-panel button,
+      .controls-panel select,
+      .controls-panel input[type="number"],
+      .controls-panel input[type="range"] {
+        padding: 0.6rem 1.2rem;
+        cursor: pointer;
+        border: 1px solid var(--accent-primary);
+        background-color: var(--accent-primary);
+        color: var(--button-text-color);
+        border-radius: 0.375rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: background-color 0.15s ease, border-color 0.15s ease,
+          transform 0.1s ease, box-shadow 0.15s ease;
+      }
+
+      .controls-panel button:hover,
+      .controls-panel select:hover,
+      .controls-panel input[type="number"]:hover,
+      .controls-panel input[type="range"]:hover {
+        background-color: var(--accent-hover);
+        border-color: var(--accent-hover);
+        transform: translateY(-1.5px);
+        box-shadow: 0 2.5px 5px rgba(45, 55, 72, 0.12);
+      }
+
+      .controls-panel button:focus-visible,
+      .controls-panel select:focus-visible,
+      .controls-panel input[type="number"]:focus-visible,
+      .controls-panel input[type="range"]:focus-visible {
+        outline: 2.5px solid var(--focus-ring-color);
+        outline-offset: 2px;
+        background-color: var(--accent-hover);
+      }
+
+      .controls-panel button:disabled {
+        background-color: #b0bec5;
+        border-color: #90a4ae;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+        opacity: 0.7;
+      }
+
+      .controls-panel label {
+        margin-left: 0.6rem;
+        margin-right: 0.3rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+      }
+
+      .controls-panel input[type="number"] {
+        width: 5em;
+        text-align: center;
+        color: var(--text-primary);
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+      }
+
+      .controls-panel input[type="range"] {
+        padding: 0;
+        vertical-align: middle;
+        min-width: 80px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>Eschermatics & Tessellations Definitive</h1>
+      <nav>
+        <ul>
+          <li>
+            <a
+              href="https://github.com/jozef-javorsky-dodo"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GitHub <span class="visually-hidden">(opens in new tab)</span></a
+            >
+          </li>
+          <li>
+            <a
+              href="https://g.dev/jozef-javorsky-dodo"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Google Dev
+              <span class="visually-hidden">(opens in new tab)</span></a
+            >
+          </li>
+          <li><a href="mailto:jozef.javorsky.dodo@gmail.com">Email</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="controls-panel">
+      <button
+        id="btnPenrose"
+        aria-label="Show Penrose Tiling Conceptual Visualization"
+      >
+        Penrose Tiling
+      </button>
+      <button
+        id="btnEscher"
+        aria-label="Show Escher Pattern Conceptual Visualization"
+      >
+        Escher Pattern
+      </button>
+      <button id="btnAnimate" aria-label="Start Animation" disabled>
+        Start Animation
+      </button>
+      <label for="iterationsControl">Level:</label>
+      <input
+        type="number"
+        id="iterationsControl"
+        value="2"
+        min="0"
+        max="5"
+        aria-label="Iteration level for visualization complexity (0-5)"
+      />
+
+      <label for="param1Control" class="escher-control" style="display: none"
+        >Shape Mod:</label
+      >
+      <input
+        type="range"
+        id="param1Control"
+        class="escher-control"
+        min="0"
+        max="1"
+        step="0.01"
+        value="0.3"
+        style="display: none"
+        aria-label="Primary shape modification parameter for Escher tiling"
+      />
+
+      <label
+        for="tilingTypeControl"
+        class="escher-control"
+        style="display: none"
+        >Base Type:</label
+      >
+      <select
+        id="tilingTypeControl"
+        class="escher-control"
+        style="display: none"
+        aria-label="Select Escher tiling conceptual base type"
+      ></select>
+
+      <label for="colorSchemeControl">Theme:</label>
+      <select
+        id="colorSchemeControl"
+        aria-label="Select color scheme for visualization"
+      >
+        <option value="default">Modern Blue</option>
+        <option value="vibrant_sunrise">Vibrant Sunrise</option>
+        <option value="grayscale_contrast">Monochrome Contrast</option>
+        <option value="deep_ocean">Deep Ocean Dark</option>
+        <option value="earthy_harmony">Earthy Harmony</option>
+        <option value="forest_canopy">Forest Canopy</option>
+        <option value="synthwave_neon">Synthwave Neon</option>
+      </select>
+    </div>
+
+    <main>
+      <canvas
+        id="visualizationCanvas"
+        role="img"
+        aria-label="Main visualization canvas for mathematical art patterns"
+      ></canvas>
+    </main>
+
+    <footer>
+      <p>
+        &copy; <span id="currentYear"></span> Generative Art Studio. All Rights
+        Reserved.
+      </p>
+    </footer>
+
+    <script type="module">
+      const canvas = document.getElementById("visualizationCanvas");
+      const ctx = canvas.getContext("2d", {
+        alpha: false,
+        desynchronized: true,
+      });
+
+      if (!ctx) {
+        console.error("CRITICAL: Canvas 2D context failed to initialize.");
+        const mainEl = document.querySelector("main");
+        if (mainEl)
+          mainEl.innerHTML = `<p style="text-align:center; padding:2em; font-size:1.2em; color:red; background: #fff1f1; border: 1px solid red;">Critical Error: Canvas 2D context is unavailable. Please ensure your browser is modern and supports HTML5 Canvas.</p>`;
+      }
+
+      let animationFrameId = null;
+      let currentVisualization = null;
+      let isAnimating = false;
+      let reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+
+      const iterationsControl = document.getElementById("iterationsControl");
+      const param1Control = document.getElementById("param1Control");
+      const tilingTypeControl = document.getElementById("tilingTypeControl");
+      const colorSchemeControl = document.getElementById("colorSchemeControl");
+      const animateButton = document.getElementById("btnAnimate");
+      const escherControls = document.querySelectorAll(".escher-control");
+
+      let currentIterations = parseInt(iterationsControl.value, 10);
+      let currentColorScheme = colorSchemeControl.value;
+      let currentTilingType = 1;
+      let currentParam1 = parseFloat(param1Control.value);
+
+      const ESCHER_CONCEPT_TYPES = Array.from({ length: 20 }, (_, i) => i + 1);
+
+      function setupEscherSpecificControls(show) {
+        escherControls.forEach((control) => {
+          const label =
+            control.labels && control.labels.length > 0
+              ? control.labels[0]
+              : control.previousElementSibling;
+          const displayValue = show ? "inline-block" : "none";
+          control.style.display = displayValue;
+          if (label && label.tagName === "LABEL")
+            label.style.display = show ? "inline" : "none";
+        });
+        iterationsControl.labels[0].textContent = show ? "Detail:" : "Level:";
+        const newMax = show ? "4" : "5";
+        iterationsControl.max = newMax;
+        if (parseInt(iterationsControl.value) > parseInt(newMax)) {
+          iterationsControl.value = newMax;
+        }
+      }
+
+      ESCHER_CONCEPT_TYPES.forEach((typeNum) => {
+        const option = document.createElement("option");
+        option.value = typeNum;
+        option.textContent = `Concept ${typeNum}`;
+        tilingTypeControl.appendChild(option);
+      });
+      tilingTypeControl.value = currentTilingType;
+
+      function resizeCanvas() {
+        if (!ctx) return;
+        const dpr = window.devicePixelRatio || 1;
+        const displayWidth = canvas.offsetWidth;
+        const displayHeight = canvas.offsetHeight;
+
+        if (
+          canvas.width !== displayWidth * dpr ||
+          canvas.height !== displayHeight * dpr
+        ) {
+          canvas.width = displayWidth * dpr;
+          canvas.height = displayHeight * dpr;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        if (currentVisualization) {
+          currentVisualization.setDimensions(displayWidth, displayHeight);
+          currentVisualization.needsRedraw = true;
+        }
+        requestDraw();
+      }
+
+      class BaseVisualization {
+        constructor(
+          context,
+          initialWidth,
+          initialHeight,
+          iterations,
+          colorScheme
+        ) {
+          this.ctx = context;
+          this.width = initialWidth;
+          this.height = initialHeight;
+          this.iterations = iterations;
+          this.colorScheme = colorScheme;
+          this.lastDrawTime = 0;
+          this.animationTime = 0;
+          this.minFrameTimeMs = 1000 / (reducedMotion ? 15 : 60);
+          this.palette = this.getPalette(colorScheme);
+          this.needsRedraw = true;
+        }
+
+        getPalette(scheme) {
+          switch (scheme) {
+            case "grayscale_contrast":
+              return {
+                bg: "#e0e0e0",
+                c1: "#212121",
+                c2: "#616161",
+                c3: "#9e9e9e",
+                accent: "#000000",
+                text: "#1a1a1a",
+              };
+            case "vibrant_sunrise":
+              return {
+                bg: "#FFF3E0",
+                c1: "#FF7043",
+                c2: "#FFCA28",
+                c3: "#FFEE58",
+                accent: "#F4511E",
+                text: "#4E342E",
+              };
+            case "deep_ocean":
+              return {
+                bg: "#001f3f",
+                c1: "#0074D9",
+                c2: "#7FDBFF",
+                c3: "#39CCCC",
+                accent: "#B10DC9",
+                text: "#F0F4F8",
+              };
+            case "earthy_harmony":
+              return {
+                bg: "#F5F5DC",
+                c1: "#A0522D",
+                c2: "#D2B48C",
+                c3: "#8FBC8F",
+                accent: "#556B2F",
+                text: "#3A2411",
+              };
+            case "forest_canopy":
+              return {
+                bg: "#E8F5E9",
+                c1: "#388E3C",
+                c2: "#81C784",
+                c3: "#A5D6A7",
+                accent: "#1B5E20",
+                text: "#2E4030",
+              };
+            case "synthwave_neon":
+              return {
+                bg: "#1A1A2E",
+                c1: "#E94560",
+                c2: "#0F3460",
+                c3: "#533483",
+                accent: "#F0A500",
+                text: "#FFFFFF",
+              };
+            default:
+              return {
+                bg: "#EDF2F7",
+                c1: "#4299E1",
+                c2: "#63B3ED",
+                c3: "#90CDF4",
+                accent: "#2B6CB0",
+                text: "#1A202C",
+              };
+          }
+        }
+
+        setDimensions(width, height) {
+          if (this.width !== width || this.height !== height) {
+            this.width = width;
+            this.height = height;
+            this.needsRedraw = true;
+          }
+        }
+
+        setIterations(iterations) {
+          const maxIter = this instanceof EscherPattern ? 4 : 5;
+          iterations = Math.max(0, Math.min(iterations, maxIter));
+          if (this.iterations !== iterations) {
+            this.iterations = iterations;
+            this.needsRedraw = true;
+          }
+        }
+
+        setColorScheme(scheme) {
+          if (this.colorScheme !== scheme) {
+            this.colorScheme = scheme;
+            this.palette = this.getPalette(scheme);
+            this.needsRedraw = true;
+          }
+        }
+
+        setEscherParams(params) {
+          this.needsRedraw = true;
+        }
+
+        clearCanvas() {
+          this.ctx.fillStyle = this.palette.bg;
+          this.ctx.fillRect(0, 0, this.width, this.height);
+        }
+
+        draw() {
+          if (!this.needsRedraw && isAnimating) return;
+          this.clearCanvas();
+          this.ctx.font = "1rem var(--font-main)";
+          this.ctx.fillStyle = this.palette.text;
+          this.ctx.textAlign = "center";
+          this.ctx.fillText(
+            "Visualization Logic Implementation Area",
+            this.width / 2,
+            this.height / 2
+          );
+          this.needsRedraw = false;
+        }
+
+        updateAnimationState(deltaTimeS) {
+          const effectiveDeltaTimeS = reducedMotion
+            ? deltaTimeS * 0.1
+            : deltaTimeS;
+          this.animationTime += effectiveDeltaTimeS;
+          this.needsRedraw = true;
+        }
+
+        animate(timestamp) {
+          const deltaTimeMs = timestamp - this.lastDrawTime;
+          if (
+            deltaTimeMs < this.minFrameTimeMs &&
+            this.lastDrawTime !== 0 &&
+            !this.needsRedraw
+          ) {
+            return;
+          }
+          if (this.lastDrawTime !== 0) {
+            this.updateAnimationState(deltaTimeMs / 1000.0);
+          } else {
+            this.updateAnimationState(0);
+          }
+          this.lastDrawTime = timestamp;
+          this.draw();
+        }
+      }
+
+      class PenroseTiling extends BaseVisualization {
+        constructor(
+          context,
+          initialWidth,
+          initialHeight,
+          iterations,
+          colorScheme
+        ) {
+          super(context, initialWidth, initialHeight, iterations, colorScheme);
+          this.phi = (1 + Math.sqrt(5)) / 2;
+          this.tiles = [];
+          this.angle36 = Math.PI / 5;
+          this.angle72 = (Math.PI * 2) / 5;
+        }
+
+        subdivideP3(tilesToSubdivide) {
+          if (
+            reducedMotion &&
+            this.iterations > 2 &&
+            tilesToSubdivide.length > 50
+          )
+            return tilesToSubdivide;
+          const newTiles = [];
+          const scaleFactor = 1 / this.phi;
+
+          for (const tile of tilesToSubdivide) {
+            const { x, y, size, angle, type } = tile;
+            const newSize = size * scaleFactor;
+
+            if (type === "kite") {
+              const pA = {
+                x: x + size * Math.cos(angle + this.angle72),
+                y: y + size * Math.sin(angle + this.angle72),
+              };
+              const pB = {
+                x: x + size * Math.cos(angle - this.angle72),
+                y: y + size * Math.sin(angle - this.angle72),
+              };
+              newTiles.push({
+                x,
+                y,
+                size: newSize,
+                angle: angle + this.angle36,
+                type: "kite",
+              });
+              newTiles.push({
+                x: pA.x,
+                y: pA.y,
+                size: newSize,
+                angle: angle + this.angle72 + Math.PI - this.angle36,
+                type: "kite",
+              });
+              newTiles.push({
+                x,
+                y,
+                size: newSize,
+                angle: angle - this.angle36,
+                type: "dart",
+              });
+              newTiles.push({
+                x: pB.x,
+                y: pB.y,
+                size: newSize,
+                angle: angle - this.angle72 + Math.PI,
+                type: "dart",
+              });
+            } else {
+              // 'dart'
+              const pA = {
+                x: x + size * Math.cos(angle),
+                y: y + size * Math.sin(angle),
+              };
+              newTiles.push({
+                x,
+                y,
+                size: newSize,
+                angle: angle + this.angle72 * 2,
+                type: "kite",
+              });
+              newTiles.push({
+                x: pA.x,
+                y: pA.y,
+                size: newSize,
+                angle: angle + Math.PI - this.angle36,
+                type: "dart",
+              });
+            }
+          }
+          return newTiles.slice(0, reducedMotion ? 100 : 500);
+        }
+
+        generateInitialTiles() {
+          const initialSize =
+            Math.min(this.width, this.height) / (2.5 + this.iterations * 0.3);
+          let currentTiles = [];
+
+          const numInitialArms = 5;
+          for (let i = 0; i < numInitialArms; ++i) {
+            const baseAngle = ((Math.PI * 2) / numInitialArms) * i;
+            currentTiles.push({
+              x: this.width / 2 + Math.cos(baseAngle) * initialSize * 0.1,
+              y: this.height / 2 + Math.sin(baseAngle) * initialSize * 0.1,
+              size: initialSize,
+              angle: baseAngle,
+              type: "kite",
+            });
+          }
+
+          for (let i = 0; i < this.iterations; i++) {
+            currentTiles = this.subdivideP3(currentTiles);
+          }
+          this.tiles = currentTiles;
+        }
+
+        drawTile(tile) {
+          this.ctx.save();
+          this.ctx.translate(tile.x, tile.y);
+          this.ctx.rotate(
+            tile.angle +
+              this.animationTime *
+                0.03 *
+                (tile.type === "kite" ? 1 : -0.7) *
+                (reducedMotion ? 0.2 : 1)
+          );
+          this.ctx.beginPath();
+          const s = tile.size;
+          const shortDiag = s / this.phi;
+
+          if (tile.type === "kite") {
+            this.ctx.moveTo(0, 0);
+            this.ctx.lineTo(s, 0);
+            this.ctx.lineTo(
+              shortDiag * Math.cos(this.angle36),
+              shortDiag * Math.sin(this.angle36)
+            );
+            this.ctx.lineTo(
+              s * Math.cos(this.angle72),
+              s * Math.sin(this.angle72)
+            );
+          } else {
+            this.ctx.moveTo(0, 0);
+            this.ctx.lineTo(shortDiag, 0);
+            this.ctx.lineTo(
+              s * Math.cos(this.angle36),
+              s * Math.sin(this.angle36)
+            );
+            this.ctx.lineTo(
+              shortDiag * Math.cos(this.angle72),
+              shortDiag * Math.sin(this.angle72)
+            );
+          }
+          this.ctx.closePath();
+          this.ctx.fillStyle =
+            tile.type === "kite" ? this.palette.c1 : this.palette.c2;
+          this.ctx.strokeStyle = this.palette.accent;
+          this.ctx.lineWidth = Math.max(0.4, s / (reducedMotion ? 60 : 45));
+          this.ctx.fill();
+          if (this.iterations < (reducedMotion ? 2 : 4)) this.ctx.stroke();
+          this.ctx.restore();
+        }
+
+        draw() {
+          if (this.needsRedraw || this.tiles.length === 0)
+            this.generateInitialTiles();
+          if (!this.needsRedraw && !isAnimating) return;
+
+          super.clearCanvas();
+          this.tiles.forEach((tile) => this.drawTile(tile));
+
+          const fontSize = Math.max(12, Math.min(this.width, this.height) / 40);
+          this.ctx.font = `bold ${fontSize}px var(--font-main)`;
+          this.ctx.fillStyle = this.palette.text;
+          this.ctx.textAlign = "center";
+          this.ctx.fillText(
+            `Penrose P3 Conceptual (Level: ${this.iterations}, Tiles: ${this.tiles.length})`,
+            this.width / 2,
+            fontSize * 1.5
+          );
+          this.needsRedraw = false;
+        }
+      }
+
+      class EscherPattern extends BaseVisualization {
+        constructor(
+          context,
+          initialWidth,
+          initialHeight,
+          iterations,
+          colorScheme,
+          escherParams
+        ) {
+          super(context, initialWidth, initialHeight, iterations, colorScheme);
+          this.tilingType = escherParams.type;
+          this.param1 = escherParams.param1;
+        }
+        setEscherParams(params) {
+          let changed = false;
+          if (this.tilingType !== params.type) {
+            this.tilingType = params.type;
+            changed = true;
+          }
+          if (this.param1 !== params.param1) {
+            this.param1 = params.param1;
+            changed = true;
+          }
+          if (changed) this.needsRedraw = true;
+        }
+
+        drawMotif(x, y, size, type, p1, animTime) {
+          this.ctx.beginPath();
+          const baseSides = (type % 4) + 3;
+          const animFactor = reducedMotion ? 0.05 : 0.3;
+          const rotationOffset =
+            animTime * 0.05 * animFactor * (type % 2 === 0 ? 1 : -1);
+
+          const points = [];
+          for (let i = 0; i < baseSides; i++) {
+            const angle = ((Math.PI * 2) / baseSides) * i + rotationOffset;
+            let radius = size * 0.5;
+            const edgeModulation =
+              size *
+              0.25 *
+              p1 *
+              Math.sin(angle * ((type % 3) + 2) + animTime * animFactor);
+            radius += edgeModulation;
+            points.push({
+              x: x + radius * Math.cos(angle),
+              y: y + radius * Math.sin(angle),
+            });
+          }
+
+          this.ctx.moveTo(points[0].x, points[0].y);
+          for (let i = 0; i < baseSides; i++) {
+            const p_current = points[i];
+            const p_next = points[(i + 1) % baseSides];
+            if (p1 < 0.15 && !reducedMotion) {
+              this.ctx.lineTo(p_next.x, p_next.y);
+            } else {
+              const midX = (p_current.x + p_next.x) / 2;
+              const midY = (p_current.y + p_next.y) / 2;
+              const normalAngle =
+                Math.atan2(p_next.y - p_current.y, p_next.x - p_current.x) +
+                Math.PI / 2;
+              const cpOffsetBase = size * 0.4 * p1;
+              const cpOffsetAnim =
+                cpOffsetBase * Math.cos(animTime * 0.2 * animFactor + type + i);
+
+              const cp1x = midX + cpOffsetAnim * Math.cos(normalAngle);
+              const cp1y = midY + cpOffsetAnim * Math.sin(normalAngle);
+              this.ctx.quadraticCurveTo(cp1x, cp1y, p_next.x, p_next.y);
+            }
+          }
+          this.ctx.closePath();
+        }
+
+        draw() {
+          if (!this.needsRedraw && !isAnimating) return;
+          super.clearCanvas();
+          const baseCells = 4 + this.iterations * 2;
+          const cellSize =
+            Math.min(this.width, this.height) / (baseCells * 0.75);
+
+          this.ctx.save();
+          this.ctx.translate(this.width / 2, this.height / 2);
+          const rotationSpeed = reducedMotion ? 0.003 : 0.015;
+          this.ctx.rotate(
+            this.animationTime * rotationSpeed * ((this.tilingType % 7) - 3)
+          );
+
+          for (
+            let i = -Math.ceil(baseCells / 1.6);
+            i <= Math.ceil(baseCells / 1.6);
+            i++
+          ) {
+            for (
+              let j = -Math.ceil(baseCells / 1.6);
+              j <= Math.ceil(baseCells / 1.6);
+              j++
+            ) {
+              let x, y;
+              const layoutType = this.tilingType % 5;
+              const spacingFactor = 0.9 + this.param1 * 0.1;
+              if (layoutType === 0) {
+                x = i * cellSize * spacingFactor;
+                y = j * cellSize * spacingFactor;
+              } else if (layoutType === 1) {
+                x = (i + (j % 2) * 0.5) * cellSize * spacingFactor;
+                y = j * cellSize * 0.866 * spacingFactor;
+              } else if (layoutType === 2) {
+                x = (i + (j % 2) * 0.5) * cellSize * spacingFactor;
+                y = j * cellSize * 0.75 * spacingFactor;
+              } else if (layoutType === 3) {
+                x = (i + j) * cellSize * 0.707 * spacingFactor;
+                y = (j - i) * cellSize * 0.707 * spacingFactor;
+              } else {
+                const angle =
+                  Math.atan2(j, i) +
+                  this.param1 * Math.PI * 0.1 * i * (reducedMotion ? 0.1 : 1);
+                const dist =
+                  Math.sqrt(i * i + j * j) *
+                  cellSize *
+                  spacingFactor *
+                  (0.5 + (this.tilingType % 3) * 0.1);
+                x = dist * Math.cos(angle);
+                y = dist * Math.sin(angle);
+              }
+
+              this.drawMotif(
+                x,
+                y,
+                cellSize,
+                this.tilingType,
+                this.param1,
+                this.animationTime
+              );
+
+              const colorIndex = Math.abs(i * 3 + j * 7 + this.tilingType) % 3;
+              this.ctx.fillStyle = [
+                this.palette.c1,
+                this.palette.c2,
+                this.palette.c3,
+              ][colorIndex];
+              this.ctx.fill();
+
+              if (this.iterations > 0 || this.param1 > 0.05) {
+                this.ctx.strokeStyle = this.palette.accent;
+                this.ctx.lineWidth = Math.max(
+                  0.3,
+                  cellSize / (35 + this.param1 * 30)
+                );
+                if (!reducedMotion || this.iterations < 2) this.ctx.stroke();
+              }
+            }
+          }
+          this.ctx.restore();
+          const fontSize = Math.max(12, Math.min(this.width, this.height) / 45);
+          this.ctx.font = `bold ${fontSize}px var(--font-main)`;
+          this.ctx.fillStyle = this.palette.text;
+          this.ctx.textAlign = "center";
+          this.ctx.fillText(
+            `Escher Conceptual (T:${this.tilingType}, M:${this.param1.toFixed(
+              2
+            )}, D:${this.iterations})`,
+            this.width / 2,
+            fontSize * 1.5
+          );
+          this.needsRedraw = false;
+        }
+      }
+
+      function requestDraw() {
+        if (!ctx) return;
+        if (
+          currentVisualization &&
+          !isAnimating &&
+          currentVisualization.needsRedraw
+        ) {
+          currentVisualization.draw();
+        } else if (!currentVisualization && !isAnimating) {
+          const bgColor = getComputedStyle(document.documentElement)
+            .getPropertyValue("--bg-primary")
+            .trim();
+          ctx.fillStyle = bgColor;
+          ctx.fillRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+          const textColor = getComputedStyle(document.documentElement)
+            .getPropertyValue("--text-primary")
+            .trim();
+          ctx.font = "1rem var(--font-main)";
+          ctx.fillStyle = textColor;
+          ctx.textAlign = "center";
+          ctx.fillText(
+            "Select a visualization from the controls panel.",
+            canvas.offsetWidth / 2,
+            canvas.offsetHeight / 2
+          );
+        }
+      }
+
+      function mainLoop(timestamp) {
+        if (
+          !isAnimating &&
+          (!currentVisualization || !currentVisualization.needsRedraw)
+        ) {
+          animationFrameId = null;
+          return;
+        }
+        if (
+          currentVisualization &&
+          typeof currentVisualization.animate === "function"
+        ) {
+          currentVisualization.animate(timestamp);
+        }
+        if (isAnimating) {
+          animationFrameId = requestAnimationFrame(mainLoop);
+        } else {
+          animationFrameId = null;
+        }
+      }
+
+      function updateGlobalControlsState() {
+        currentIterations = parseInt(iterationsControl.value, 10);
+        currentColorScheme = colorSchemeControl.value;
+        if (currentVisualization instanceof EscherPattern) {
+          currentTilingType = parseInt(tilingTypeControl.value);
+          currentParam1 = parseFloat(param1Control.value);
+        }
+      }
+
+      function applyCurrentSettingsToVisualization() {
+        if (!currentVisualization) return;
+        updateGlobalControlsState();
+        currentVisualization.setIterations(currentIterations);
+        currentVisualization.setColorScheme(currentColorScheme);
+        if (currentVisualization instanceof EscherPattern) {
+          currentVisualization.setEscherParams({
+            type: currentTilingType,
+            param1: currentParam1,
+          });
+        }
+        currentVisualization.needsRedraw = true;
+        if (!isAnimating) requestDraw();
+        else currentVisualization.lastDrawTime = 0;
+      }
+
+      iterationsControl.addEventListener(
+        "input",
+        applyCurrentSettingsToVisualization
+      );
+      colorSchemeControl.addEventListener(
+        "change",
+        applyCurrentSettingsToVisualization
+      );
+      param1Control.addEventListener(
+        "input",
+        applyCurrentSettingsToVisualization
+      );
+      tilingTypeControl.addEventListener(
+        "change",
+        applyCurrentSettingsToVisualization
+      );
+
+      function activateVisualization(VisClass) {
+        if (!ctx) return;
+
+        setupEscherSpecificControls(VisClass === EscherPattern);
+        updateGlobalControlsState();
+
+        currentVisualization = new VisClass(
+          ctx,
+          canvas.offsetWidth,
+          canvas.offsetHeight,
+          currentIterations,
+          currentColorScheme,
+          { type: currentTilingType, param1: currentParam1 }
+        );
+        currentVisualization.needsRedraw = true;
+        currentVisualization.lastDrawTime = 0;
+        currentVisualization.minFrameTimeMs = 1000 / (reducedMotion ? 15 : 60);
+
+        isAnimating = false;
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+        }
+        animateButton.textContent = "Start Animation";
+        animateButton.setAttribute("aria-label", "Start Animation");
+        animateButton.disabled = reducedMotion;
+
+        requestDraw();
+      }
+
+      document
+        .getElementById("btnPenrose")
+        .addEventListener("click", () => activateVisualization(PenroseTiling));
+      document
+        .getElementById("btnEscher")
+        .addEventListener("click", () => activateVisualization(EscherPattern));
+
+      animateButton.addEventListener("click", () => {
+        if (!ctx || !currentVisualization || reducedMotion) {
+          if (reducedMotion) {
+            animateButton.textContent = "Animation Limited";
+            animateButton.disabled = true;
+          }
+          return;
+        }
+        isAnimating = !isAnimating;
+        animateButton.textContent = isAnimating
+          ? "Stop Animation"
+          : "Start Animation";
+        animateButton.setAttribute(
+          "aria-label",
+          isAnimating ? "Stop Animation" : "Start Animation"
+        );
+
+        if (isAnimating) {
+          currentVisualization.lastDrawTime = 0;
+          currentVisualization.needsRedraw = true;
+          if (!animationFrameId) {
+            animationFrameId = requestAnimationFrame(mainLoop);
+          }
+        } else {
+          if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+          }
+          requestDraw();
+        }
+      });
+
+      window
+        .matchMedia("(prefers-reduced-motion: reduce)")
+        .addEventListener("change", (e) => {
+          reducedMotion = e.matches;
+          if (currentVisualization) {
+            currentVisualization.minFrameTimeMs =
+              1000 / (reducedMotion ? 10 : 60);
+            currentVisualization.needsRedraw = true;
+          }
+          if (reducedMotion) {
+            if (isAnimating) {
+              isAnimating = false;
+              if (animationFrameId) cancelAnimationFrame(animationFrameId);
+              animationFrameId = null;
+            }
+            animateButton.textContent = "Animation Limited";
+            animateButton.setAttribute(
+              "aria-label",
+              "Animation limited due to system preference"
+            );
+            animateButton.disabled = true;
+          } else if (currentVisualization) {
+            animateButton.disabled = false;
+            animateButton.textContent = isAnimating
+              ? "Stop Animation"
+              : "Start Animation";
+            animateButton.setAttribute(
+              "aria-label",
+              isAnimating ? "Stop Animation" : "Start Animation"
+            );
+            if (isAnimating && !animationFrameId)
+              animationFrameId = requestAnimationFrame(mainLoop);
+          }
+          if (currentVisualization) requestDraw();
+        });
+
+      window.addEventListener("resize", resizeCanvas);
+      document.getElementById("currentYear").textContent =
+        new Date().getFullYear();
+
+      function init() {
+        if (!ctx) return;
+        if (reducedMotion) {
+          animateButton.textContent = "Animation Limited";
+          animateButton.disabled = true;
+        }
+        updateGlobalControlsState();
+        resizeCanvas();
+        requestDraw();
+        setupEscherSpecificControls(false);
+      }
+
+      init();
+    </script>
+  </body>
+</html>
