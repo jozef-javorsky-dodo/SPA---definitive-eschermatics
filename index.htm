@@ -1,0 +1,1053 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta
+      name="theme-color"
+      content="#edf2f7"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#0f172a"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta name="author" content="github.com/jozef-javorsky-dodo" />
+    <meta
+      name="description"
+      content="Premium mathematical art visualizer featuring Penrose tilings and Escher-style patterns. State-of-the-art WebGL/Canvas performance."
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; manifest-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests;"
+    />
+    <meta property="og:title" content="Eschermatics Definitive" />
+    <meta
+      property="og:description"
+      content="State-of-the-art mathematical art visualizer."
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:url"
+      content="https://definitive-eschermatics.web.app/"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Eschermatics & Tessellations Visualizer Definitive</title>
+    <link rel="canonical" href="https://definitive-eschermatics.web.app/" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌟%3C/text%3E%3C/svg%3E"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230f172a'/%3E%3Ctext y='.9em' x='5' font-size='80'%3E🌟%3C/text%3E%3C/svg%3E"
+    />
+    <link
+      rel="manifest"
+      href="data:application/json;base64,eyJuYW1lIjoiRXNjaGVybWF0aWNzIERlZmluaXRpdmUiLCJzaG9ydF9uYW1lIjoiRXNjaGVyIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2VkZjJmNyIsInRoZW1lX2NvbG9yIjoiIzJiNmNiMCIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWwsJTNDc3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDEwMCAxMDAnJTNFJTNDdGV4dCB5PScuOWVtJyBmb250LXNpemU9JzkwJyUzRfCfjJ8lM0MvdGV4dCUzRSUzQy9zdmclM0UiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0="
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Eschermatics Definitive",
+        "url": "https://definitive-eschermatics.web.app/",
+        "description": "Mathematical art visualizer for Penrose tilings and Escher patterns.",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "author": {
+          "@type": "Person",
+          "name": "Jozef Javorsky",
+          "url": "https://github.com/jozef-javorsky-dodo"
+        }
+      }
+    </script>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --h: 217;
+        --s: 19%;
+        --bg-primary: hsl(var(--h), var(--s), 98%);
+        --bg-secondary: hsl(var(--h), var(--s), 94%);
+        --bg-glass: hsla(var(--h), var(--s), 100%, 0.85);
+        --text-primary: hsl(var(--h), var(--s), 10%);
+        --text-secondary: hsl(var(--h), var(--s), 35%);
+        --header-bg: hsla(222, 47%, 11%, 0.95);
+        --header-color: hsl(210, 40%, 98%);
+        --accent-primary: hsl(217, 91%, 55%);
+        --accent-hover: hsl(217, 91%, 45%);
+        --accent-glow: hsla(217, 91%, 60%, 0.5);
+        --border-color: hsla(var(--h), var(--s), 20%, 0.15);
+        --shadow-color: hsla(var(--h), var(--s), 10%, 0.1);
+        --focus-ring: 3px solid hsl(217, 91%, 55%);
+        --font-main:
+          system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        --glass-blur: blur(16px);
+        --transition-speed: 0.3s;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg-primary: hsl(222, 47%, 9%);
+          --bg-secondary: hsl(222, 47%, 6%);
+          --bg-glass: hsla(222, 47%, 12%, 0.85);
+          --text-primary: hsl(210, 40%, 98%);
+          --text-secondary: hsl(210, 40%, 75%);
+          --border-color: hsla(210, 40%, 100%, 0.15);
+          --shadow-color: hsla(0, 0%, 0%, 0.5);
+          --accent-primary: hsl(217, 91%, 65%);
+          --accent-hover: hsl(217, 91%, 75%);
+        }
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        font-size: 16px;
+        scroll-behavior: smooth;
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: var(--font-main);
+        background: var(--bg-primary);
+        background: radial-gradient(
+          circle at 50% 0%,
+          var(--bg-secondary) 0%,
+          var(--bg-primary) 100%
+        );
+        color: var(--text-primary);
+        display: flex;
+        flex-direction: column;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 50;
+      }
+
+      :focus-visible {
+        outline: var(--focus-ring);
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+
+      .skip-link {
+        position: absolute;
+        top: -100px;
+        left: 1rem;
+        background: var(--accent-primary);
+        color: #fff;
+        padding: 0.75rem 1.5rem;
+        font-weight: 700;
+        z-index: 10000;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        transition: top var(--transition-speed) ease;
+      }
+
+      .skip-link:focus {
+        top: 1rem;
+      }
+
+      header {
+        background-color: var(--header-bg);
+        color: var(--header-color);
+        padding: clamp(1rem, 2vh, 1.5rem) 2rem;
+        text-align: center;
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: 0 4px 20px var(--shadow-color);
+        z-index: 1000;
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      nav ul {
+        list-style: none;
+        padding: 0;
+        margin: 1rem 0 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: clamp(1rem, 4vw, 3rem);
+        flex-wrap: wrap;
+      }
+
+      nav ul li a {
+        color: var(--header-color);
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition:
+          opacity var(--transition-speed) ease,
+          text-shadow var(--transition-speed) ease;
+        opacity: 0.85;
+        padding: 0.5rem;
+      }
+
+      nav ul li a:hover,
+      nav ul li a:focus-visible {
+        opacity: 1;
+        text-shadow: 0 0 15px var(--accent-glow);
+      }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .controls-wrapper {
+        background-color: var(--bg-glass);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color);
+        z-index: 900;
+        position: relative;
+      }
+
+      .controls-panel {
+        padding: 1rem 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem 1.5rem;
+        justify-content: center;
+        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      .control-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      button,
+      select,
+      input[type="range"] {
+        min-height: 48px;
+        font-family: inherit;
+        touch-action: manipulation;
+      }
+
+      button {
+        padding: 0 1.5rem;
+        cursor: pointer;
+        border: 1px solid transparent;
+        background: var(--accent-primary);
+        color: #ffffff;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 700;
+        transition:
+          transform 0.2s ease,
+          background-color 0.2s ease,
+          box-shadow 0.2s ease;
+        box-shadow: 0 4px 6px -1px var(--shadow-color);
+      }
+
+      button:hover:not(:disabled) {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px -3px var(--shadow-color);
+      }
+
+      button:active:not(:disabled) {
+        transform: translateY(0);
+      }
+
+      label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+      }
+
+      select {
+        padding: 0 2.5rem 0 1rem;
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1rem;
+      }
+
+      input[type="range"] {
+        appearance: none;
+        background: transparent;
+        cursor: pointer;
+        width: 130px;
+      }
+
+      input[type="range"]::-webkit-slider-runnable-track {
+        background: var(--border-color);
+        height: 8px;
+        border-radius: 4px;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        background: var(--accent-primary);
+        height: 24px;
+        width: 24px;
+        border-radius: 50%;
+        margin-top: -8px;
+        box-shadow: 0 2px 5px var(--shadow-color);
+        transition: transform 0.1s ease;
+      }
+
+      input[type="range"]::-webkit-slider-thumb:hover {
+        transform: scale(1.15);
+      }
+
+      input[type="range"]::-moz-range-track {
+        background: var(--border-color);
+        height: 8px;
+        border-radius: 4px;
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        background: var(--accent-primary);
+        height: 24px;
+        width: 24px;
+        border-radius: 50%;
+        border: none;
+        box-shadow: 0 2px 5px var(--shadow-color);
+        transition: transform 0.1s ease;
+      }
+
+      input[type="range"]::-moz-range-thumb:hover {
+        transform: scale(1.15);
+      }
+
+      main {
+        flex: 1;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: var(--bg-primary);
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+        will-change: transform;
+        outline: none;
+      }
+
+      footer {
+        background: var(--header-bg);
+        color: var(--text-secondary);
+        padding: 1rem;
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-top: 1px solid var(--border-color);
+        z-index: 1000;
+      }
+
+      #loadingOverlay {
+        position: fixed;
+        inset: 0;
+        background: var(--bg-primary);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition:
+          opacity 0.4s ease,
+          visibility 0.4s;
+      }
+
+      .loader {
+        width: 48px;
+        height: 48px;
+        border: 4px solid var(--border-color);
+        border-top-color: var(--accent-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading-text {
+        margin-top: 1.5rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+      }
+
+      @media (max-width: 768px) {
+        .controls-panel {
+          flex-direction: column;
+          align-items: stretch;
+          padding: 1rem;
+        }
+
+        .control-group {
+          justify-content: space-between;
+        }
+
+        input[type="range"] {
+          width: 60%;
+        }
+
+        select {
+          width: 60%;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <a href="#main-content" class="skip-link">Skip to Content</a>
+    <div
+      id="loadingOverlay"
+      role="alert"
+      aria-busy="true"
+      aria-label="Loading application"
+    >
+      <div class="loader"></div>
+      <div class="loading-text">Eschermatics</div>
+    </div>
+    <header>
+      <h1>Eschermatics Definitive</h1>
+      <nav aria-label="Primary Navigation">
+        <ul>
+          <li>
+            <a
+              href="https://github.com/jozef-javorsky-dodo"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub <span class="visually-hidden">(opens in new tab)</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://g.dev/jozef-javorsky-dodo"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Google Dev <span class="visually-hidden">(opens in new tab)</span>
+            </a>
+          </li>
+          <li>
+            <a href="mailto:jozef.javorsky.dodo@gmail.com">Email</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <div class="controls-wrapper">
+      <section class="controls-panel" aria-label="Visualization Controls">
+        <div class="control-group">
+          <button id="btnPenrose" aria-label="Show Penrose Tiling">
+            Penrose
+          </button>
+          <button id="btnEscher" aria-label="Show Escher Pattern">
+            Escher
+          </button>
+          <button
+            id="btnAnimate"
+            aria-label="Toggle Animation"
+            aria-pressed="false"
+          >
+            Start Animation
+          </button>
+        </div>
+        <div class="control-group">
+          <label for="iterationsControl">Detail:</label>
+          <input
+            type="range"
+            id="iterationsControl"
+            min="0"
+            max="5"
+            value="3"
+            aria-label="Complexity Level"
+          />
+        </div>
+        <div class="control-group">
+          <label for="colorSchemeControl">Theme:</label>
+          <select id="colorSchemeControl" aria-label="Color Palette">
+            <option value="default">Modern Blue</option>
+            <option value="vibrant_sunrise">Sunrise</option>
+            <option value="grayscale_contrast">Grayscale</option>
+            <option value="deep_ocean">Ocean</option>
+            <option value="earthy_harmony">Earth</option>
+            <option value="forest_canopy">Forest</option>
+            <option value="synthwave_neon">Synthwave</option>
+          </select>
+        </div>
+        <div class="control-group escher-control" style="display: none">
+          <label for="tilingTypeControl">Concept:</label>
+          <select id="tilingTypeControl" aria-label="Escher Base Concept">
+            <option value="1">C1</option>
+            <option value="2">C2</option>
+            <option value="3">C3</option>
+            <option value="4">C4</option>
+            <option value="5">C5</option>
+            <option value="6">C6</option>
+            <option value="7">C7</option>
+            <option value="8">C8</option>
+            <option value="9">C9</option>
+            <option value="10">C10</option>
+          </select>
+        </div>
+        <div class="control-group escher-control" style="display: none">
+          <label for="param1Control">Morph:</label>
+          <input
+            type="range"
+            id="param1Control"
+            min="0"
+            max="1"
+            step="0.01"
+            value="0.3"
+            aria-label="Morphing Strength"
+          />
+        </div>
+      </section>
+    </div>
+    <noscript>
+      <div
+        style="
+          padding: 2rem;
+          text-align: center;
+          color: #b91c1c;
+          background: #fee2e2;
+          border-bottom: 2px solid #b91c1c;
+          font-weight: bold;
+        "
+      >
+        This application requires JavaScript to function. Please enable
+        JavaScript in your browser settings.
+      </div>
+    </noscript>
+    <main id="main-content" tabindex="-1">
+      <canvas
+        id="visualizationCanvas"
+        role="img"
+        aria-label="Main visualization canvas for mathematical art patterns"
+      >
+        <p>
+          Your browser does not support the HTML5 Canvas element required for
+          this application.
+        </p>
+      </canvas>
+      <div id="a11y-announcer" class="visually-hidden" aria-live="polite"></div>
+    </main>
+    <footer>
+      <p>
+        &copy; <span id="currentYear"></span> Generative Art Studio. All Rights
+        Reserved.
+      </p>
+    </footer>
+    <script type="module">
+      "use strict";
+      class Sanitizer {
+        static number(val, min, max, fallback) {
+          const n = parseFloat(val);
+          return Number.isFinite(n)
+            ? Math.min(Math.max(n, min), max)
+            : fallback;
+        }
+        static int(val, min, max, fallback) {
+          const n = parseInt(val, 10);
+          return Number.isFinite(n)
+            ? Math.min(Math.max(n, min), max)
+            : fallback;
+        }
+        static string(val, allowed, fallback) {
+          return allowed.includes(val) ? val : fallback;
+        }
+      }
+      class BaseVisualization {
+        constructor(ctx, width, height, palette) {
+          this.ctx = ctx;
+          this.width = width;
+          this.height = height;
+          this.palette = palette;
+          this.time = 0;
+        }
+        setDimensions(w, h) {
+          this.width = w;
+          this.height = h;
+        }
+        update(dt) {
+          this.time += dt;
+        }
+        render() {
+          this.ctx.fillStyle = this.palette.bg;
+          this.ctx.fillRect(0, 0, this.width, this.height);
+        }
+      }
+      class PenroseTiling extends BaseVisualization {
+        constructor(ctx, width, height, palette, iterations) {
+          super(ctx, width, height, palette);
+          this.iterations = iterations;
+          this.phi = (1 + Math.sqrt(5)) / 2;
+          this.tiles = [];
+          this.generate();
+        }
+        setDimensions(w, h) {
+          super.setDimensions(w, h);
+          this.generate();
+        }
+        generate() {
+          const size =
+            Math.min(this.width, this.height) / (2.5 + this.iterations * 0.4);
+          let current = [];
+          for (let i = 0; i < 5; i++) {
+            const angle = ((Math.PI * 2) / 5) * i;
+            current.push({
+              x: this.width / 2,
+              y: this.height / 2,
+              size,
+              angle,
+              type: "kite",
+            });
+          }
+          for (let i = 0; i < this.iterations; i++) {
+            current = this.subdivide(current);
+          }
+          this.tiles = current;
+        }
+        subdivide(tiles) {
+          const next = [];
+          const r = 1 / this.phi;
+          for (const t of tiles) {
+            const { x, y, size, angle, type } = t;
+            const ns = size * r;
+            const a72 = (Math.PI * 2) / 5;
+            const a36 = Math.PI / 5;
+            if (type === "kite") {
+              const pA = {
+                x: x + size * Math.cos(angle + a72),
+                y: y + size * Math.sin(angle + a72),
+              };
+              const pB = {
+                x: x + size * Math.cos(angle - a72),
+                y: y + size * Math.sin(angle - a72),
+              };
+              next.push({ x, y, size: ns, angle: angle + a36, type: "kite" });
+              next.push({
+                x: pA.x,
+                y: pA.y,
+                size: ns,
+                angle: angle + a72 + Math.PI - a36,
+                type: "kite",
+              });
+              next.push({ x, y, size: ns, angle: angle - a36, type: "dart" });
+              next.push({
+                x: pB.x,
+                y: pB.y,
+                size: ns,
+                angle: angle - a72 + Math.PI,
+                type: "dart",
+              });
+            } else {
+              const pA = {
+                x: x + size * Math.cos(angle),
+                y: y + size * Math.sin(angle),
+              };
+              next.push({
+                x,
+                y,
+                size: ns,
+                angle: angle + a72 * 2,
+                type: "kite",
+              });
+              next.push({
+                x: pA.x,
+                y: pA.y,
+                size: ns,
+                angle: angle + Math.PI - a36,
+                type: "dart",
+              });
+            }
+          }
+          return next;
+        }
+        render() {
+          super.render();
+          this.ctx.lineWidth = 0.5;
+          for (const t of this.tiles) {
+            this.ctx.save();
+            this.ctx.translate(t.x, t.y);
+            this.ctx.rotate(t.angle + this.time * 0.05);
+            this.ctx.beginPath();
+            const s = t.size;
+            const d = s / this.phi;
+            const a72 = (Math.PI * 2) / 5;
+            const a36 = Math.PI / 5;
+            if (t.type === "kite") {
+              this.ctx.moveTo(0, 0);
+              this.ctx.lineTo(s, 0);
+              this.ctx.lineTo(d * Math.cos(a36), d * Math.sin(a36));
+              this.ctx.lineTo(s * Math.cos(a72), s * Math.sin(a72));
+            } else {
+              this.ctx.moveTo(0, 0);
+              this.ctx.lineTo(d, 0);
+              this.ctx.lineTo(s * Math.cos(a36), s * Math.sin(a36));
+              this.ctx.lineTo(d * Math.cos(a72), d * Math.sin(a72));
+            }
+            this.ctx.closePath();
+            this.ctx.fillStyle =
+              t.type === "kite" ? this.palette.c1 : this.palette.c2;
+            this.ctx.strokeStyle = this.palette.accent;
+            this.ctx.fill();
+            this.ctx.stroke();
+            this.ctx.restore();
+          }
+        }
+      }
+      class EscherPattern extends BaseVisualization {
+        constructor(ctx, width, height, palette, iterations, type, param) {
+          super(ctx, width, height, palette);
+          this.iterations = iterations;
+          this.type = type;
+          this.param = param;
+        }
+        render() {
+          super.render();
+          const cells = 4 + this.iterations * 2;
+          const diag = Math.sqrt(this.width ** 2 + this.height ** 2);
+          const size = diag / (cells * 1.5);
+          this.ctx.save();
+          this.ctx.translate(this.width / 2, this.height / 2);
+          this.ctx.rotate(this.time * 0.1);
+          for (let i = -cells; i <= cells; i++) {
+            for (let j = -cells; j <= cells; j++) {
+              const x = i * size * (1 + this.param * 0.1);
+              const y = j * size * (1 + this.param * 0.1);
+              this.drawMotif(x, y, size);
+              this.ctx.fillStyle = [
+                this.palette.c1,
+                this.palette.c2,
+                this.palette.c3,
+              ][Math.abs(i + j) % 3];
+              this.ctx.fill();
+            }
+          }
+          this.ctx.restore();
+        }
+        drawMotif(x, y, s) {
+          this.ctx.beginPath();
+          const sides = (this.type % 4) + 3;
+          for (let k = 0; k < sides; k++) {
+            const a = ((Math.PI * 2) / sides) * k;
+            const r = s * 0.5 * (1 + this.param * Math.sin(a * 3 + this.time));
+            const px = x + r * Math.cos(a);
+            const py = y + r * Math.sin(a);
+            if (k === 0) this.ctx.moveTo(px, py);
+            else this.ctx.lineTo(px, py);
+          }
+          this.ctx.closePath();
+        }
+      }
+      class Engine {
+        constructor() {
+          this.canvas = document.getElementById("visualizationCanvas");
+          this.ctx = this.canvas.getContext("2d", {
+            alpha: false,
+            desynchronized: true,
+            willReadFrequently: false,
+          });
+          this.announcer = document.getElementById("a11y-announcer");
+          this.vis = null;
+          this.active = false;
+          this.lastTime = performance.now();
+          this.animFrame = null;
+          this.palettes = Object.freeze({
+            grayscale_contrast: Object.freeze({
+              bg: "#e0e0e0",
+              c1: "#212121",
+              c2: "#616161",
+              c3: "#9e9e9e",
+              accent: "#000000",
+            }),
+            vibrant_sunrise: Object.freeze({
+              bg: "#fff3e0",
+              c1: "#ff7043",
+              c2: "#ffca28",
+              c3: "#ffee58",
+              accent: "#f4511e",
+            }),
+            deep_ocean: Object.freeze({
+              bg: "#001f3f",
+              c1: "#0074d9",
+              c2: "#7fdbff",
+              c3: "#39cccc",
+              accent: "#b10dc9",
+            }),
+            earthy_harmony: Object.freeze({
+              bg: "#f5f5dc",
+              c1: "#a0522d",
+              c2: "#d2b48c",
+              c3: "#8fbc8f",
+              accent: "#556b2f",
+            }),
+            forest_canopy: Object.freeze({
+              bg: "#e8f5e9",
+              c1: "#388e3c",
+              c2: "#81c784",
+              c3: "#a5d6a7",
+              accent: "#1b5e20",
+            }),
+            synthwave_neon: Object.freeze({
+              bg: "#1a1a2e",
+              c1: "#e94560",
+              c2: "#0f3460",
+              c3: "#533483",
+              accent: "#f0a500",
+            }),
+            default: Object.freeze({
+              bg: "#edf2f7",
+              c1: "#4299e1",
+              c2: "#63b3ed",
+              c3: "#90cdf4",
+              accent: "#2b6cb0",
+            }),
+          });
+          this.setupEvents();
+          const rect = this.canvas.parentElement.getBoundingClientRect();
+          this.resize(rect.width, rect.height);
+          this.setVis("penrose");
+          this.sync();
+          document.getElementById("currentYear").textContent = new Date()
+            .getFullYear()
+            .toString();
+          const loader = document.getElementById("loadingOverlay");
+          loader.style.opacity = "0";
+          setTimeout(() => {
+            loader.style.visibility = "hidden";
+            loader.setAttribute("aria-busy", "false");
+          }, 400);
+        }
+        getPalette(name) {
+          const safeName = Sanitizer.string(
+            name,
+            Object.keys(this.palettes),
+            "default",
+          );
+          return this.palettes[safeName];
+        }
+        setupEvents() {
+          this.observer = new ResizeObserver((entries) => {
+            requestAnimationFrame(() => {
+              if (!Array.isArray(entries) || !entries.length) return;
+              const entry = entries[0];
+              this.resize(entry.contentRect.width, entry.contentRect.height);
+            });
+          });
+          this.observer.observe(this.canvas.parentElement);
+          document
+            .getElementById("btnPenrose")
+            .addEventListener("click", () => this.setVis("penrose"));
+          document
+            .getElementById("btnEscher")
+            .addEventListener("click", () => this.setVis("escher"));
+          document
+            .getElementById("btnAnimate")
+            .addEventListener("click", () => this.toggleAnimate());
+          document.querySelectorAll("input, select").forEach((el) => {
+            el.addEventListener("input", () => this.sync());
+          });
+        }
+        resize(w, h) {
+          const dpr = window.devicePixelRatio || 1;
+          this.canvas.width = w * dpr;
+          this.canvas.height = h * dpr;
+          this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          if (this.vis) {
+            this.vis.setDimensions(w, h);
+          }
+          this.render();
+        }
+        setVis(type) {
+          const p = this.getPalette(
+            document.getElementById("colorSchemeControl").value,
+          );
+          const it = Sanitizer.int(
+            document.getElementById("iterationsControl").value,
+            0,
+            5,
+            3,
+          );
+          const rect = this.canvas.parentElement.getBoundingClientRect();
+          if (type === "penrose") {
+            this.vis = new PenroseTiling(
+              this.ctx,
+              rect.width,
+              rect.height,
+              p,
+              it,
+            );
+            document
+              .querySelectorAll(".escher-control")
+              .forEach((el) => (el.style.display = "none"));
+            this.announcer.textContent = "Penrose tiling visualization loaded.";
+          } else {
+            const ty = Sanitizer.int(
+              document.getElementById("tilingTypeControl").value,
+              1,
+              20,
+              1,
+            );
+            const pa = Sanitizer.number(
+              document.getElementById("param1Control").value,
+              0,
+              1,
+              0.3,
+            );
+            this.vis = new EscherPattern(
+              this.ctx,
+              rect.width,
+              rect.height,
+              p,
+              it,
+              ty,
+              pa,
+            );
+            document
+              .querySelectorAll(".escher-control")
+              .forEach((el) => (el.style.display = "flex"));
+            this.announcer.textContent = "Escher pattern visualization loaded.";
+          }
+          this.render();
+        }
+        sync() {
+          if (!this.vis) return;
+          this.vis.palette = this.getPalette(
+            document.getElementById("colorSchemeControl").value,
+          );
+          this.vis.iterations = Sanitizer.int(
+            document.getElementById("iterationsControl").value,
+            0,
+            5,
+            3,
+          );
+          if (this.vis instanceof EscherPattern) {
+            this.vis.type = Sanitizer.int(
+              document.getElementById("tilingTypeControl").value,
+              1,
+              20,
+              1,
+            );
+            this.vis.param = Sanitizer.number(
+              document.getElementById("param1Control").value,
+              0,
+              1,
+              0.3,
+            );
+          } else if (this.vis instanceof PenroseTiling) {
+            this.vis.generate();
+          }
+          this.render();
+        }
+        toggleAnimate() {
+          this.active = !this.active;
+          const btn = document.getElementById("btnAnimate");
+          btn.textContent = this.active ? "Stop Animation" : "Start Animation";
+          btn.setAttribute("aria-pressed", this.active.toString());
+          this.announcer.textContent = this.active
+            ? "Animation started."
+            : "Animation stopped.";
+          if (this.active) {
+            this.lastTime = performance.now();
+            this.animFrame = requestAnimationFrame((t) => this.loop(t));
+          } else if (this.animFrame) {
+            cancelAnimationFrame(this.animFrame);
+          }
+        }
+        loop(t) {
+          if (!this.active) return;
+          const dt = Math.min((t - this.lastTime) / 1000, 0.1);
+          this.lastTime = t;
+          this.vis.update(dt);
+          this.render();
+          this.animFrame = requestAnimationFrame((t) => this.loop(t));
+        }
+        render() {
+          if (this.vis) {
+            this.vis.render();
+          } else {
+            this.ctx.fillStyle = this.palettes.default.bg;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+          }
+        }
+      }
+      window.addEventListener("DOMContentLoaded", () => new Engine());
+    </script>
+  </body>
+</html>
